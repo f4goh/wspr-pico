@@ -19,7 +19,7 @@ The Raspberry Pi Pico can generate an HF (high-frequency) signal on its GPIO pin
 
 ![RP2040-Zero](images/RP2040-Zero.jpg "RP2040-Zero")
 
-## testing  SDR-PICO V1 board
+## Testing SDR-PICO V1 board
 
 ### With solar pannel no batteries 20m band
 
@@ -27,9 +27,7 @@ The Raspberry Pi Pico can generate an HF (high-frequency) signal on its GPIO pin
 
 ![20m-pico-wspr-solar](images/20m-pico-wspr-solar.png "20m-pico-wspr-solar")
 
-![PCB_QRP20](images/PCB_QRP20.png "PCB_QRP20")
-
-### 20m band durinf one night
+### 20m band during one night
 
 ![20m_f4kmn](images/20m_f4kmn.png "20m_f4kmn")
 
@@ -89,7 +87,7 @@ It is also possible to program the Raspberry Pi Pico using the Arduino IDE thank
 ![schematics](schematics/baliseHF_pico2350.png "schematics")
 
 ## PCB
-![PCB_QRP11](images/PCB_QRP20.png "PCB_QRP20")
+![PCB_QRP20](images/PCB_QRP20.png "PCB_QRP20")
 
 ## RPI PICO ZERO PINOUT
 
