@@ -1,6 +1,6 @@
 ## SDR-PICO V1 and V2
 
-[A project based from Burkhard Kainka, DK7JD ](https://www.elektronik-labor.de/Raspberry/Pico38.html)
+[A project from Burkhard Kainka, DK7JD ](https://www.elektronik-labor.de/Raspberry/Pico38.html)
 
 The Raspberry Pi Pico can generate an HF (high-frequency) signal on its GPIO pins thanks to its dedicated GPIO assembly language, known as PIO (Programmable I/O).
 
