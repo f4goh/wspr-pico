@@ -1,0 +1,22 @@
+ Le volume dans le lecteur C n'a pas de nom.
+ Le num‚ro de s‚rie du volume est 7E2F-11D4
+
+ R‚pertoire de C:\Users\anthony\Documents\GitHub\wspr-pico\images
+
+03/21/26  01:42 PM    <REP>          .
+03/21/26  01:42 PM    <REP>          ..
+09/14/25  12:29 PM           423,701 20m f4kmn.png
+03/20/26  05:36 PM           109,508 20m-pico-wspr-solar.png
+03/21/26  01:39 PM            65,234 baliseHF_pico2350.png
+03/21/26  01:42 PM                18 l.bat
+03/21/26  01:42 PM                 0 lst.txt
+08/31/25  03:00 PM            83,811 PCB_QRP11.png
+03/21/26  11:05 AM           109,896 PCB_QRP20.png
+03/21/26  01:35 PM           148,743 RP2040-Zero.jpg
+03/20/26  08:05 PM           281,442 rp2350_lcd.png
+03/20/26  07:35 PM           628,758 rp2350_lcd_pinout.png
+09/14/25  12:26 PM           399,576 rpi.jpg
+08/31/25  09:25 AM           132,188 wspr40m_45mW.png
+08/28/25  07:53 PM           481,324 wspr40m_bis_dis.png
+              13 fichier(s)        2,864,199 octets
+               2 R‚p(s)   9,597,054,976 octets libres
