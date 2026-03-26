@@ -85,7 +85,12 @@ The Raspberry Pi Pico can generate an HF (high-frequency) signal on its GPIO pin
 - **Development Environment**: Official support for the Raspberry Pi Pico SDK, including integration with the Visual Studio Code (VS Code) IDE
 - **Alternative IDE**: Arduino IDE support via the Arduino-Pico core
 
-## Configuration
+## Configuration in putty (115200 bauds)
+
+It is now necessary to access the configuration menu. 
+To do this, hold down the push button “bp menu” while connecting the USB connector to the Raspberry Pi Pico Zero. 
+At this point, a serial communication port such as COMx should appear on Windows, or /dev/ttyACM0 on Linux.
+
 
 ```console
 >help
