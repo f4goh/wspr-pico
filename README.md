@@ -210,7 +210,15 @@ Soon
 - [WSPR Rocks](https://wsprocks.com/)
 - [QRP Labs WSPR viewer](https://www.qrp-labs.com/ultimate3/wsprview.html)
 
+## Usefull links for wspr
 
+- [Code correcteur — Wikipédia](https://fr.wikipedia.org/wiki/Code_correcteur)
+- [WSPR Coding Process (PDF)](http://www.g4jnt.com/wspr_coding_process.pdf)
+
+## Usefull links for filter design
+
+- [Tonnesoftware SVC Download](http://tonnesoftware.com/svcdownload.html)
+- [Mini Ring Core Calculator – Software Informer](https://mini-ring-core-calculator.software.informer.com/1.2/)
 
 
 
