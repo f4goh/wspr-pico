@@ -8,6 +8,31 @@ The Raspberry Pi Pico can generate an HF (high-frequency) signal on its GPIO pin
 ## SDR-PICO V1
 ![rpi](images/rpiV1.jpg "rpi")
 
+# 📡 Beacon Specifications
+
+## 🧩 Hardware
+
+- **Microcontroller:** Raspberry Pi Pico (RP2040)
+- **Power supply:** USB or external +5V source
+- **GPS module**
+- **Optional RTC:** DS3231 real-time clock
+- **Amplifier:** 2N2222 (0.1 W max)
+- **Removable filter**
+- **PCB:** Available in Gerber format
+
+## 💻 Software Compatibility
+
+- Arduino IDE 1.8+
+- PlatformIO (OSX / Windows / Linux)
+
+## 📶 Transmission Modes
+
+- WSPR
+- FT8
+- Hell
+- RTTY
+- CW
+
 ## Schematics
 
 ![schematics](schematics/baliseHF_picoV11.png "schematics")
@@ -59,6 +84,61 @@ The Raspberry Pi Pico can generate an HF (high-frequency) signal on its GPIO pin
 - **Supported Languages**: C/C++ and MicroPython
 - **Development Environment**: Official support for the Raspberry Pi Pico SDK, including integration with the Visual Studio Code (VS Code) IDE
 - **Alternative IDE**: Arduino IDE support via the Arduino-Pico core
+
+## Configuration
+
+```console
+>help
+Available commands
+Set transmission frequency                  : freq 7040100
+Set offset value                            : offset -200
+Set callsign                                : call F4XYZ
+Set locator                                 : loc JN07
+Set mode  wspr rtty ft8 hell cw             : mode wspr
+Set modulo in minutes                       : minute 10
+Set number of repeated frames to send       : nbframe 2
+Set cw words per minute                     : wpm 15
+Set transmission power (dBm)                : dbm 10
+Set email address                           : mail f4xyz at example.com
+Set gps baud rate                           : gpsbaud 9600
+Scan I2C bus                                : scan
+Show nmea frame                             : nmea 1
+Save current configuration to EEPROM        : save
+Display current configuration               : show
+Reset all parameters to default values      : raz
+Restart RPI pico                            : restart
+Show this help message                      : help
+Exit menu                                   : exit>
+```
+The minimum setup for a quick WSPR test is:
+
+```console
+
+raz             Initialize parameters
+freq 7040100    Set transmission frequency
+call F4XYZ      Enter callsign
+loc JN07        Enter locator
+mode wspr       Select transmission mode
+minute 2        Transmit every two minutes
+dbm 10          Set power level information for WSPR
+save            Save configuration
+show            Display configuration
+
+>show
+Current configuration :
+  freq           : 7040100 Hz
+  offset         : -200
+  call           : F4GOH
+  locator        : JN07
+  dbm            : 10 dBm
+  mode           : WSPR
+  wpm            : 12
+  mail           : none@example.com
+  minute         : 2 min
+  nbframe        : 1
+  Gps baud rate  : 9600
+  Nmea debug  is : OFF
+```
 
 #### Using Arduino IDE with Raspberry Pi Pico
 
