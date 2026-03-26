@@ -1,0 +1,402 @@
+/* 
+ * File:   Menu.cpp
+ * Author: philippe SIMIER Touchard Washington le Mans
+ * 
+ * Created on 22 avril 2022, 17:11
+ * manque certains tests des valeurs lors de la saisie
+ */
+
+#include "Menu.h"
+
+const char* Menu::modeStr[5] = { "WSPR", "RTTY", "FT8", "HELL", "CW" };
+
+Menu::Menu() :
+exitFlag(false),
+con(new Console())      
+{
+    anchor = this;
+    pinMode(MENU_PIN, INPUT_PULLUP);  // GP6 avec résistance interne activée
+}
+
+Menu::Menu(const Menu& orig) {
+}
+
+Menu::~Menu() {
+    anchor = NULL;
+}
+
+void Menu::run() {
+    exitFlag = false;
+    if (digitalRead(MENU_PIN) == 0) {
+        EEPROM.begin(sizeof (config));
+        EEPROM.get(0, cfg);
+        Serial.println(F("help command for info"));
+        while (exitFlag == false) {
+            con->run();
+        }
+    }
+    Serial.println(F("\nConsole exit"));
+}
+
+void Menu::setup() {
+ 
+    con->onCmd("call", _call_);
+    con->onCmd("freq", _freq_);
+    con->onCmd("minute",_minute_);
+    con->onCmd("offset", _offset_);
+    con->onCmd("gpsbaud", _gpsbaud_);
+    con->onCmd("dbm", _dbm_);
+    con->onCmd("nbframe", _nbframe_);
+    con->onCmd("mail", _mail_);
+    con->onCmd("settemp", _settemp_);
+    con->onCmd("show", _show_);
+    con->onCmd("raz", _raz_);
+    con->onCmd("restart", _restart_);
+    con->onCmd("save", _save_);
+    con->onCmd("exit", _exit_);
+    con->onCmd("help", _help_);
+    con->onCmd("scan", _scan_);
+    con->onCmd("loc", _loc_);
+    con->onCmd("mode", _mode_);
+    con->onCmd("nmea", _nmea_);
+    con->onCmd("wpm", _wpm_);
+
+    con->onUnknown(_unknown);
+    con->start();
+    this->run();
+}
+
+void Menu::_exit_(ArgList& L, Stream& S) {
+    anchor->exitFlag = true;
+
+}
+
+void Menu::_help_(ArgList& L, Stream& S) {
+    S.println(F("Available commands"));
+    S.println(F("Set transmission frequency                  : freq 7040100"));
+    S.println(F("Set offset value                            : offset -200"));
+    S.println(F("Set callsign                                : call F4XYZ"));
+    S.println(F("Set locator                                 : loc JN07"));
+    S.println(F("Set mode  wspr rtty ft8 hell cw             : mode wspr"));
+    S.println(F("Set modulo in minutes                       : minute 10"));
+    S.println(F("Enable or disable TEMP measure (0 or 1)     : settemp 1"));
+    S.println(F("Set number of repeated frames to send       : nbframe 2"));
+    S.println(F("Set cw words per minute                     : wpm 15"));
+    S.println(F("Set transmission power (dBm)                : dbm 10"));
+    S.println(F("Set email address                           : mail f4xyz at example.com"));
+    S.println(F("Set gps baud rate                           : gpsbaud 9600"));
+    S.println(F("Scan I2C bus                                : scan"));
+    S.println(F("Show nmea frame                             : nmea 1"));
+    S.println(F("Save current configuration to EEPROM        : save"));
+    S.println(F("Display current configuration               : show"));
+    S.println(F("Reset all parameters to default values      : raz"));
+    S.println(F("Restart RPI pico                            : restart"));
+    S.println(F("Show this help message                      : help"));
+    S.println(F("Exit menu                                   : exit"));
+}
+
+//manque seconds
+
+
+bool Menu::acceptCmd(String cmd, int longMin, int longMax) {
+
+    if (cmd.length() >= longMin && cmd.length() <= longMax) {
+        return true;
+    } else {
+        Serial.println("Erreur");
+        return false;
+    }
+}
+
+void Menu::_unknown(String& L, Stream& S) {
+    S.print(L);
+    S.println(" : command not found");
+}
+
+void Menu::_call_(ArgList& L, Stream& S) {
+    String p;
+    bool ret;
+    p = L.getNextArg();
+    ret = anchor->acceptCmd(p, 4, 9);
+    if (ret == true) {
+        p.toUpperCase();
+        size_t len = strlen(p.c_str());
+
+        if (len < sizeof (cfg.call)) {
+            //memcpy(anchor->cfg.call, p.c_str(), len);
+            //anchor->cfg.call[len] = '\0'; // Ajout manuel du terminateur
+            strcpy(anchor->cfg.call, p.c_str());
+            S.printf("Callsign set to: %s\n\r", anchor->cfg.call);
+        } else {
+            S.println(F("Callsign too long. Max 9 characters."));
+        }
+    } else {
+        S.println(F("Invalid callsign format."));
+    }
+
+}
+
+void Menu::_loc_(ArgList& L, Stream& S) {
+    String p;
+    bool ret;
+    p = L.getNextArg();
+    ret = anchor->acceptCmd(p, 4, 4);
+    if (ret == true) {
+        p.toUpperCase();
+            strcpy(anchor->cfg.locator, p.c_str());
+            S.printf("Locator set to: %s\n\r", anchor->cfg.locator);
+    } else {
+        S.println(F("Invalid locator format ex JN07"));
+    }
+}
+
+
+void Menu::_mode_(ArgList& L, Stream& S) {
+    String p = L.getNextArg();
+    p.toLowerCase();  // Normalise la casse pour comparaison
+    if (p == "wspr") {
+        anchor->cfg.mode = WSPR;
+    } else if (p == "rtty") {
+        anchor->cfg.mode = RTTY;
+    } else if (p == "ft8") {
+        anchor->cfg.mode = FT8;
+    } else if (p == "hell") {
+        anchor->cfg.mode = HELL;
+    } else if (p == "cw") {
+        anchor->cfg.mode = CW;
+    } else {
+        S.println(F("Invalid mode syntax. Example: mode wspr"));
+        return;
+    }
+    // Affiche le mode sélectionné    
+    S.printf("Mode set to: %s\n\r", modeStr[anchor->cfg.mode]);
+}
+
+
+//manque le test de la fréquence max supportée par le RPI
+void Menu::_freq_(ArgList& L, Stream& S) {
+    String p;
+    bool ret;
+    p = L.getNextArg();
+    ret = anchor->acceptCmd(p, 6, 8);
+    if (ret == true) {
+        uint32_t freqValue = p.toInt(); // Conversion de la chaîne en entier
+        anchor->cfg.freq = freqValue; // Sauvegarde dans la structure
+        S.printf("Frequency set to: %lu Hz\n\r", anchor->cfg.freq);
+    }
+}
+
+
+void Menu::_minute_(ArgList& L, Stream& S) {
+    String p;
+    bool ret;
+    p = L.getNextArg();
+    ret = anchor->acceptCmd(p, 1, 2);
+    if (ret == true) {
+        uint8_t minuteValue = (uint8_t) p.toInt(); // Conversion en entier 8 bits
+        anchor->cfg.minute = minuteValue; // Sauvegarde dans la structure
+        S.printf("Minute modulo set to: %u\n\r", anchor->cfg.minute);
+    }
+}
+
+void Menu::_wpm_(ArgList& L, Stream& S) {
+    String p;
+    bool ret;
+    p = L.getNextArg();
+    ret = anchor->acceptCmd(p, 1, 2);
+    if (ret == true) {
+        uint8_t wpm = (uint8_t) p.toInt(); // Conversion en entier 8 bits
+        anchor->cfg.wpm = wpm; // Sauvegarde dans la structure
+        S.printf("WPM set to: %u\n\r", anchor->cfg.wpm);
+    }
+}
+
+
+//facteur de correction
+void Menu::_offset_(ArgList& L, Stream& S) {
+    String p;
+    bool ret;
+    p = L.getNextArg();
+    ret = anchor->acceptCmd(p, 1, 5);
+    if (ret == true) {
+        int32_t offsetValue = p.toInt(); // Conversion en entier signé
+        anchor->cfg.offset = offsetValue; // Sauvegarde dans la structure
+        S.printf("Offset set to: %ld\n\r", anchor->cfg.offset);
+    }
+}
+
+void Menu::_gpsbaud_(ArgList& L, Stream& S) {
+    String p;
+    bool ret;
+    p = L.getNextArg();
+    ret = anchor->acceptCmd(p, 4, 5);
+    if (ret == true) {
+        uint32_t baudValue = p.toInt(); // Conversion en entier non signé
+        anchor->cfg.baud = baudValue; // Sauvegarde dans la structure
+        S.printf("GPS baudrate set to: %lu\n\r", anchor->cfg.baud);
+    }
+}
+
+
+
+//les valeurs de dbm sont normalisées la table pour vérification
+void Menu::_dbm_(ArgList& L, Stream& S) {
+    String p = L.getNextArg();
+    bool ret = anchor->acceptCmd(p, 1, 2);
+
+    if (ret == true) {
+        int inputValue = p.toInt();
+
+        // Tableau des puissances disponibles
+        const uint8_t dbmTable[] = {
+            0, 3, 7, 10, 13, 17, 20, 23, 27, 30,
+            33, 37, 40, 43, 47, 50, 53, 57, 60
+        };
+        const size_t tableSize = sizeof(dbmTable) / sizeof(dbmTable[0]);
+
+        // Recherche de la valeur la plus proche
+        uint8_t closest = dbmTable[0];
+        int minDiff = abs(inputValue - dbmTable[0]);
+
+        for (size_t i = 1; i < tableSize; ++i) {
+            int diff = abs(inputValue - dbmTable[i]);
+            if (diff < minDiff) {
+                minDiff = diff;
+                closest = dbmTable[i];
+            }
+        }
+        // Mise à jour de la configuration
+        anchor->cfg.dbm = closest;
+        S.printf("Transmission power set to: %u dBm (closest to %d)\n\r", closest, inputValue);
+    }
+}
+
+
+//manque le test du débordement en fonction de la saisie du modulo ex si minutes modulo 6 et  nbframe > 3 pas possible
+void Menu::_nbframe_(ArgList& L, Stream & S) {
+    String p;
+    bool ret;
+    p = L.getNextArg();
+    ret = anchor->acceptCmd(p, 1, 1);
+    if (ret == true) {
+        uint8_t frameCount = (uint8_t) p.toInt(); // Conversion en entier 8 bits
+
+        anchor->cfg.nbFrame = frameCount; // Sauvegarde dans la structure
+
+        S.printf("Number of frames set to: %u\n\r", anchor->cfg.nbFrame);
+    }
+}
+
+void Menu::_mail_(ArgList& L, Stream& S) {
+    String arg;
+    bool ret;
+    String p = "";
+    while (!(arg = L.getNextArg()).isEmpty()) {
+        p = p + arg + " ";
+    }
+    ret = anchor->acceptCmd(p, 3, 30);
+    p.toUpperCase();
+    size_t len = strlen(p.c_str());
+    if (len < sizeof (anchor->cfg.mail)) {
+        //memcpy(anchor->cfg.mail, p.c_str(), len);
+        //anchor->cfg.mail[len] = '\0'; // Ajout manuel du terminateur
+        strcpy(anchor->cfg.mail, p.c_str());
+        S.printf("Email set to: %s\n\r", anchor->cfg.mail);
+    } else {
+        S.println(F("Email too long. Max 30 characters."));
+    }
+}
+
+
+
+void Menu::_nmea_(ArgList& L, Stream& S) {
+    String p;
+    bool ret;
+    p = L.getNextArg();
+    ret = anchor->acceptCmd(p, 1, 1);
+    if (ret == true) {
+        int val = p.toInt(); // Conversion en entier
+        if (val == 0 || val == 1) {
+            anchor->cfg.nmeaEnabled = (val == 1); // Affectation booléenne
+
+            S.printf("Nmea frame debug %s\n\r", anchor->cfg.nmeaEnabled ? "enabled" : "disabled");
+        } else {
+            S.println(F("Invalid value. Use 0 to disable or 1 to enable nmea debug."));
+        }
+    }
+}
+
+void Menu::_show_(ArgList& L, Stream& S) {
+    S.println("Current configuration :");
+    S.printf("  freq           : %lu Hz\n\r", anchor->cfg.freq);
+    S.printf("  offset         : %ld\n\r", anchor->cfg.offset);
+    S.printf("  call           : %s\n\r", anchor->cfg.call);
+    S.printf("  locator        : %s\n\r", anchor->cfg.locator);
+    S.printf("  dbm            : %u dBm\n\r", anchor->cfg.dbm);
+    S.printf("  mode           : %s\n\r", modeStr[anchor->cfg.mode]);        
+    S.printf("  wpm            : %u\n\r", anchor->cfg.wpm);
+    S.printf("  mail           : %s\n\r", anchor->cfg.mail);
+    S.printf("  minute         : %u min\n\r", anchor->cfg.minute);
+    S.printf("  nbframe        : %u\n\r", anchor->cfg.nbFrame);
+    S.printf("  Gps baud rate  : %u\n\r", anchor->cfg.baud);
+    S.printf("  Nmea debug  is : %s\n\r", anchor->cfg.nmeaEnabled ? "ON" : "OFF");
+}
+
+void Menu::_save_(ArgList& L, Stream& S) {
+  EEPROM.put(0, anchor->cfg);
+  EEPROM.commit();
+  Serial.println("Configuration saved.");
+}
+
+void Menu::_raz_(ArgList& L, Stream& S) {
+
+    anchor->cfg.freq = 7040100; // Fréquence par défaut
+    anchor->cfg.offset = -200; // Fréquence par défaut
+    strcpy(anchor->cfg.call, "NOCALL"); // Indicatif par défaut
+    anchor->cfg.dbm = 10; // Puissance par défaut
+    strcpy(anchor->cfg.mail, "none@example.com"); // Email par défaut
+    strcpy(anchor->cfg.locator, "JN07"); // Locator par défaut
+    anchor->cfg.minute = 6; // Durée par défaut
+    anchor->cfg.tempEnabled = false; // TEMP désactivé par défaut
+    anchor->cfg.nbFrame = 2; // Par exemple, 2 trames par défaut
+    anchor->cfg.baud=9600;  //9600 bauds
+    anchor->cfg.gpsEnabled=false;
+    anchor->cfg.mode=WSPR;
+    anchor->cfg.nmeaEnabled=false;
+    anchor->cfg.wpm=12;
+    Serial.println("Configuration has been reset to default values.");    
+}
+
+void Menu::_restart_(ArgList& L, Stream& S) {
+    watchdog_reboot(0, 0, 0);  // Redémarre immédiatement    
+}
+
+
+void Menu::_scan_(ArgList& L, Stream& S) {
+    anchor->scanI2C();
+}
+
+void Menu::scanI2C() {
+    Serial.println("    00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e 0f");
+    for (uint8_t row = 0; row < 8; row++) {
+        Serial.printf("%02x: ", row << 4);
+        for (uint8_t col = 0; col < 16; col++) {
+            uint8_t address = (row << 4) | col;
+            Wire.beginTransmission(address);
+            uint8_t error = Wire.endTransmission();
+
+            if (error == 0) {
+                Serial.printf("%02x ", address);
+            } else if (error == 4) {
+                Serial.print("UU "); // Bus error
+            } else {
+                Serial.print("-- ");
+            }
+        }
+        Serial.println();
+    }
+}
+
+
+
+Menu* Menu::anchor = NULL;
