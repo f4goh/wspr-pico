@@ -16,7 +16,7 @@
 #define MENU_PIN 6
 
 typedef enum{
-    WSPR,RTTY,FT8,HELL,CW     
+    WSPR,RTTY,FT8,HELL,CW,NOTX     
 }txModes;
 
 typedef struct {
@@ -26,12 +26,12 @@ typedef struct {
   char mail[31];
   int32_t offset;
   uint8_t minute;    // Durée en minutes
-  uint8_t nbFrame;   // Nombre de trames à envoyer
   uint32_t baud;
   char locator[5];
   txModes mode; 
   bool nmeaEnabled;
   uint8_t wpm;
+  bool follow;
 } config;
 
 
@@ -54,7 +54,6 @@ public:
     static void _offset_(ArgList& L, Stream& S);
     static void _gpsbaud_(ArgList& L, Stream& S);
     static void _dbm_(ArgList& L, Stream& S);
-    static void _nbframe_(ArgList& L, Stream& S);
     static void _mail_(ArgList& L, Stream& S);
     static void _settemp_(ArgList& L, Stream& S);
     static void _mode_(ArgList& L, Stream& S);
@@ -69,7 +68,7 @@ public:
     static void _loc_(ArgList& L, Stream& S);
     static void _nmea_(ArgList& L, Stream& S);
     static void _wpm_(ArgList& L, Stream& S);
-    
+    static void _follow_(ArgList& L, Stream& S);
     //void displayRtc();
     
     bool exitFlag;

@@ -25,7 +25,9 @@ Locator::~Locator() {
 }
 
 
-String Locator::getLocator(float lat, float lon, int nbChar) {
+String Locator::getLocator(float lat, float lon, int nbChar,uint8_t *dbm) {
+  const uint8_t valid_dbm[19] = {0, 3, 7, 10, 13, 17, 20, 23, 27, 30, 33, 37, 40, 43, 47, 50, 53, 57, 60};
+
   if (lat < -90.0 || lat > 90.0 || lon < -180.0 || lon > 180.0) {
     return "INVALID";
   }
@@ -44,8 +46,10 @@ String Locator::getLocator(float lat, float lon, int nbChar) {
   locator[3] = '0' + int(fmod(lat, 10));
 
   // Subsquare (A-X)
-  locator[4] = 'A' + int(fmod(lon, 2) * 12);
-  locator[5] = 'A' + int(fmod(lat, 1) * 24);
+  int xLong = int(fmod(lon, 2) * 12);
+  int yLat  = int(fmod(lat, 1) * 24);
+  locator[4] = 'A' + xLong;
+  locator[5] = 'A' + yLat;
 
   // Extended square (0-9)
   locator[6] = '0' + int(fmod(lon * 120, 10));
@@ -53,15 +57,22 @@ String Locator::getLocator(float lat, float lon, int nbChar) {
 
   locator[8] = '\0';
 
-  // Clamp nbChar to valid range
+  // ===== AJOUT CALCUL DBM =====
+  int indice = (xLong / 4) * 3 + (yLat / 8);
+  *dbm = valid_dbm[indice];
+  // ============================
+
+  // Clamp nbChar
   if (nbChar < 2) nbChar = 2;
   if (nbChar > 8) nbChar = 8;
-  if (nbChar % 2 != 0) nbChar--;  // Ensure even number
+  if (nbChar % 2 != 0) nbChar--;
 
   return String(locator).substring(0, nbChar);
 }
 
-bool Locator::getLocator(float lat, float lon, int nbChar, char loc[]) {
+bool Locator::getLocator(float lat, float lon, int nbChar, char loc[],uint8_t *dbm) {
+  const uint8_t valid_dbm[19] = {0, 3, 7, 10, 13, 17, 20, 23, 27, 30, 33, 37, 40, 43, 47, 50, 53, 57, 60};
+
   // Vérification des coordonnées
   if (lat < -90.0 || lat > 90.0 || lon < -180.0 || lon > 180.0) {    
     return 0;
@@ -81,8 +92,11 @@ bool Locator::getLocator(float lat, float lon, int nbChar, char loc[]) {
   fullLocator[3] = '0' + int(fmod(lat, 10));
 
   // Subsquare (A-X)
-  fullLocator[4] = 'A' + int(fmod(lon, 2) * 12);
-  fullLocator[5] = 'A' + int(fmod(lat, 1) * 24);
+  int xLong = int(fmod(lon, 2) * 12);
+  int yLat  = int(fmod(lat, 1) * 24);
+
+  fullLocator[4] = 'A' + xLong;
+  fullLocator[5] = 'A' + yLat;
 
   // Extended square (0-9)
   fullLocator[6] = '0' + int(fmod(lon * 120, 10));
@@ -90,11 +104,22 @@ bool Locator::getLocator(float lat, float lon, int nbChar, char loc[]) {
 
   fullLocator[8] = '\0';
 
-  // Copie les nbChar premiers caractères dans loc[]
+  // ===== AJOUT CALCUL DBM =====
+  int indice = (xLong / 4) * 3 + (yLat / 8);
+  *dbm = valid_dbm[indice];  // ou pos.pwrDbm
+  // ============================
+
+  // Clamp nbChar (bonne pratique ici aussi 👍)
+  if (nbChar < 2) nbChar = 2;
+  if (nbChar > 8) nbChar = 8;
+  if (nbChar % 2 != 0) nbChar--;
+
+  // Copie
   for (int i = 0; i < nbChar; i++) {
     loc[i] = fullLocator[i];
   }
-  loc[nbChar] = '\0';  // Terminaison
+  loc[nbChar] = '\0';
+
   return 1;
 }
 

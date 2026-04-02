@@ -67,7 +67,7 @@ void Afficheur::configDisplay(config& cfg) {
 
     // Ligne 2 : puissance, durée, trames
     
-    snprintf(line, sizeof(line), "dbm%u mn%u nb%u", cfg.dbm, cfg.minute, cfg.nbFrame);
+    snprintf(line, sizeof(line), "dbm%u mn%u fl%u", cfg.dbm, cfg.minute, cfg.follow);
     display.drawString(0, 2, line);
 
     // Ligne 3 : GPS et baudrate
@@ -83,7 +83,7 @@ void Afficheur::configDisplay(config& cfg) {
     // Ligne 5 : mode
     const char* modeStr[] = { "WSPR", "RTTY", "FT8", "HELL", "CW" };
     
-    snprintf(line, sizeof(line), "mode %s %s", modeStr[cfg.mode],cfg.call);
+    snprintf(line, sizeof(line), "md %s %s", modeStr[cfg.mode],cfg.call);
     display.drawString(0, 5, line);
 
     // Ligne 6 : WPM

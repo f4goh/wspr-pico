@@ -62,6 +62,7 @@ public:
     void sendFt8(char *call, char *locator);
     void sendHell(char * stringHell);
     void sendCw(char * stringCw, int cwWpm);
+    void setDbm(uint8_t _dbm);
     
     
 private:
@@ -87,7 +88,7 @@ private:
        
     byte tempo;
     byte txMode;  
-    
+    uint8_t dbm;
 };
 
 

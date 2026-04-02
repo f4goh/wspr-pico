@@ -44,7 +44,6 @@ void Menu::setup() {
     con->onCmd("offset", _offset_);
     con->onCmd("gpsbaud", _gpsbaud_);
     con->onCmd("dbm", _dbm_);
-    con->onCmd("nbframe", _nbframe_);
     con->onCmd("mail", _mail_);
     con->onCmd("show", _show_);
     con->onCmd("raz", _raz_);
@@ -57,7 +56,8 @@ void Menu::setup() {
     con->onCmd("mode", _mode_);
     con->onCmd("nmea", _nmea_);
     con->onCmd("wpm", _wpm_);
-
+    con->onCmd("follow", _follow_);
+ 
     con->onUnknown(_unknown);
     con->start();
     this->run();
@@ -76,8 +76,7 @@ void Menu::_help_(ArgList& L, Stream& S) {
     S.println(F("Set locator                                 : loc JN07"));
     S.println(F("Set mode  wspr rtty ft8 hell cw             : mode wspr"));
     S.println(F("Set modulo in minutes                       : minute 10"));
-    S.println(F("Enable or disable TEMP measure (0 or 1)     : settemp 1"));
-    S.println(F("Set number of repeated frames to send       : nbframe 2"));
+    S.println(F("Set follow mode                             : follow 1"));
     S.println(F("Set cw words per minute                     : wpm 15"));
     S.println(F("Set transmission power (dBm)                : dbm 10"));
     S.println(F("Set email address                           : mail f4xyz at example.com"));
@@ -269,20 +268,6 @@ void Menu::_dbm_(ArgList& L, Stream& S) {
 }
 
 
-//manque le test du débordement en fonction de la saisie du modulo ex si minutes modulo 6 et  nbframe > 3 pas possible
-void Menu::_nbframe_(ArgList& L, Stream & S) {
-    String p;
-    bool ret;
-    p = L.getNextArg();
-    ret = anchor->acceptCmd(p, 1, 1);
-    if (ret == true) {
-        uint8_t frameCount = (uint8_t) p.toInt(); // Conversion en entier 8 bits
-
-        anchor->cfg.nbFrame = frameCount; // Sauvegarde dans la structure
-
-        S.printf("Number of frames set to: %u\n\r", anchor->cfg.nbFrame);
-    }
-}
 
 void Menu::_mail_(ArgList& L, Stream& S) {
     String arg;
@@ -323,6 +308,23 @@ void Menu::_nmea_(ArgList& L, Stream& S) {
     }
 }
 
+void Menu::_follow_(ArgList& L, Stream& S) {
+    String p;
+    bool ret;
+    p = L.getNextArg();
+    ret = anchor->acceptCmd(p, 1, 1);
+    if (ret == true) {
+        int val = p.toInt(); // Conversion en entier
+        if (val == 0 || val == 1) {
+            anchor->cfg.follow = (val == 1); // Affectation booléenne
+
+            S.printf("Follow is %s\n\r", anchor->cfg.follow ? "enabled" : "disabled");
+        } else {
+            S.println(F("Invalid value. Use 0 to disable or 1 to enable follow mode."));
+        }
+    }
+}
+
 void Menu::_show_(ArgList& L, Stream& S) {
     S.println("Current configuration :");
     S.printf("  freq           : %lu Hz\n\r", anchor->cfg.freq);
@@ -334,9 +336,9 @@ void Menu::_show_(ArgList& L, Stream& S) {
     S.printf("  wpm            : %u\n\r", anchor->cfg.wpm);
     S.printf("  mail           : %s\n\r", anchor->cfg.mail);
     S.printf("  minute         : %u min\n\r", anchor->cfg.minute);
-    S.printf("  nbframe        : %u\n\r", anchor->cfg.nbFrame);
     S.printf("  Gps baud rate  : %u\n\r", anchor->cfg.baud);
     S.printf("  Nmea debug  is : %s\n\r", anchor->cfg.nmeaEnabled ? "ON" : "OFF");
+    S.printf("  Follow  is     : %s\n\r", anchor->cfg.follow ? "ON" : "OFF");
 }
 
 void Menu::_save_(ArgList& L, Stream& S) {
@@ -354,11 +356,11 @@ void Menu::_raz_(ArgList& L, Stream& S) {
     strcpy(anchor->cfg.mail, "none@example.com"); // Email par défaut
     strcpy(anchor->cfg.locator, "JN07"); // Locator par défaut
     anchor->cfg.minute = 6; // Durée par défaut
-    anchor->cfg.nbFrame = 2; // Par exemple, 2 trames par défaut
     anchor->cfg.baud=9600;  //9600 bauds
     anchor->cfg.mode=WSPR;
     anchor->cfg.nmeaEnabled=false;
     anchor->cfg.wpm=12;
+    anchor->cfg.follow=0;
     Serial.println("Configuration has been reset to default values.");    
 }
 

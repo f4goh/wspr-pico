@@ -21,8 +21,8 @@ public:
     Locator();
     Locator(const Locator& orig);
     virtual ~Locator();    
-    String getLocator(float latitude, float longitude, int nbChar = 6);
-    bool getLocator(float lat, float lon, int nbChar, char loc[]);
+    String getLocator(float latitude, float longitude, int nbChar ,uint8_t *dbm);
+    bool getLocator(float lat, float lon, int nbChar, char loc[],uint8_t *dbm);
     
     void convLocator(String locator);
     float getLatitudeDec();
@@ -33,6 +33,7 @@ public:
   private:
     float latitudeDec = 0.0;
     float longitudeDec = 0.0;
+
 
 
 };

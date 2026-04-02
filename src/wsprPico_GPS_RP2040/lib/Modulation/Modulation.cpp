@@ -15,8 +15,8 @@
 
 Modulation::Modulation(config* _cfg) : cfg(_cfg) {
     setFreqWspr(cfg->freq+cfg->offset);
-    setFreqRtty(cfg->freq+cfg->offset+500L);  //rtty 700Hz sous la fréquence wspr (plus simple pour écouter)
-    setFreqFt8(7075000L);  //provisoire non implanté dans le menu
+    setFreqRtty(cfg->freq+cfg->offset+500L);  //a cote de la fréquence wspr
+    setFreqFt8(cfg->freq+cfg->offset+500L);  
     anchor = this;
     pinMode(TEST_PIN,OUTPUT);
 }
@@ -69,13 +69,18 @@ void Modulation::waitIrq(){
 
 
 void Modulation::sendWspr(char *locator) {
-    
+
     memset(txBuffer, 0, WSPR_SYMBOL_COUNT);
-    jtencode.wspr_encode(cfg->call, locator, cfg->dbm, txBuffer);
-    startTimerIRQ(WSPR_DELAY*1000);
-    flagIrq=false;
+    if (cfg->follow) {
+        jtencode.wspr_encode(cfg->call, locator, dbm, txBuffer); //avec suivi
+    } else {
+        jtencode.wspr_encode(cfg->call, locator, cfg->dbm, txBuffer); //sans suivi
+    }
+
+    startTimerIRQ(WSPR_DELAY * 1000);
+    flagIrq = false;
     for (uint8_t i = 0; i < WSPR_SYMBOL_COUNT; i++) {
-        periods = wsfr[txBuffer[i]];    //modulation fsk sur 4 niveaux de fréquences avec un shift de 1.48 Hz le contenu de buffer est 0 ou 1 ou 2 ou 3
+        periods = wsfr[txBuffer[i]]; //modulation fsk sur 4 niveaux de fréquences avec un shift de 1.48 Hz le contenu de buffer est 0 ou 1 ou 2 ou 3
         //delay(WSPR_DELAY);
         waitIrq();
     }
@@ -83,6 +88,9 @@ void Modulation::sendWspr(char *locator) {
     stopTimerIRQ();
 }
 
+void Modulation::setDbm(uint8_t _dbm){
+  dbm=_dbm;  
+}
 
 
 void Modulation::sendRtty(char* stringRtty) {
@@ -144,7 +152,7 @@ void Modulation::rttyTxByte(char c) {
 
 void Modulation::sendFt8(char *call, char *locator) {
     char buf[20];
-    sprintf(buf, "CQ %s %s", call, locator);
+    sprintf(buf, "%s%s", call, locator);
     //Serial.println(buf);
     memset(txBuffer, 0, FT8_SYMBOL_COUNT);
     jtencode.ft8_encode(buf, txBuffer);
