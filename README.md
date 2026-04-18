@@ -268,6 +268,8 @@ Current configuration :
 
 ```
 
+![rp2350_60m](images/band60m.png "rp2350_60m")
+
 To enable iambic mode and vand mode the 1st time is :
 
 ```console
@@ -284,6 +286,7 @@ Mode set to: IAMBIC
 
 ![rp2350_cw](images/board_cw.jpg "rp2350_cw")
 
+---
 
 ## Usefull links for wspr reports
 
