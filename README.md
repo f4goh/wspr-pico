@@ -119,15 +119,15 @@ The minimum setup for a quick WSPR test is:
 
 ```console
 
-raz             Initialize parameters
-freq 7040100    Set transmission frequency
-call F4XYZ      Enter callsign
-loc JN07        Enter locator
-mode wspr       Select transmission mode
-minute 2        Transmit every two minutes
-dbm 10          Set power level information for WSPR
-save            Save configuration
-show            Display configuration
+>raz             Initialize parameters
+>freq 7040100    Set transmission frequency
+>call F4XYZ      Enter callsign
+>loc JN07        Enter locator
+>mode wspr       Select transmission mode
+>minute 2        Transmit every two minutes
+>dbm 10          Set power level information for WSPR
+>save            Save configuration
+>show            Display configuration
 
 >show
 Current configuration :
@@ -167,6 +167,8 @@ It is also possible to program the Raspberry Pi Pico using the Arduino IDE thank
 
 # SDR-PICO V2
 
+![rp2350_board](images/board_low2.jpg "rp2350_board")
+
 ## Schematics
 
 ![schematics](schematics/baliseHF_pico2350.png "schematics")
@@ -199,7 +201,89 @@ It is also possible to program the Raspberry Pi Pico using the Arduino IDE thank
 
 ## testing  SDR-PICO V2 board
 
-Soon
+## Configuration in putty (115200 bauds)
+
+It is now necessary to access the configuration menu. 
+To do this, hold down the push button “bp menu” while connecting the USB connector to the Raspberry Pi Pico Zero. 
+At this point, a serial communication port such as COMx should appear on Windows, or /dev/ttyACM0 on Linux.
+
+
+```console
+
+>help
+Available commands
+Set transmission frequency             : freq 7040100
+Set offset value                       : offset -200
+Set callsign                           : call F4XYZ
+Set locator                            : loc JN07
+Set mode  wspr rtty ft8 hell cw iambic : mode wspr
+Set band 160,80m,60m,40m,30m,20m,freq  : band 40m
+Set modulo in minutes                  : minute 10
+Set follow mode                        : follow 1
+Set cw words per minute                : wpm 15
+Set iambic mode                        : iambic B
+Set transmission power (dBm)           : dbm 10
+Set email address                      : mail f4xyz at example.com
+Set gps baud rate                      : gpsbaud 9600
+Scan I2C bus                           : scan
+Show nmea frame                        : nmea 1
+Save current configuration to EEPROM   : save
+Display current configuration          : show
+Reset all parameters to default        : raz
+Restart RPI pico                       : restart
+Show this help message                 : help
+Exit menu                              : exit
+```
+The minimum first setup for a quick WSPR test is:
+
+```console
+
+>raz             Initialize parameters
+>band 60m        Set band
+>call F4XYZ      Enter callsign
+>loc JN07        Enter locator
+>mode wspr       Select transmission mode
+>minute 2        Transmit every two minutes
+>dbm 10          Set power level information for WSPR
+>save            Save configuration
+>show            Display configuration
+
+>show
+Current configuration :
+  freq           : 5288700 Hz
+  offset         : -200
+  call           : F4GOH
+  locator        : JN07
+  dbm            : 10 dBm
+  mode           : WSPR
+  band           : 60m
+  wpm            : 16
+  iambic mode    : A
+  mail           : none@example.com
+  minute         : 2 min
+  Gps baud rate  : 9600
+  Nmea debug  is : OFF
+  Follow  is     : OFF
+> exit
+
+```
+
+To enable iambic mode and vand mode the 1st time is :
+
+```console
+>raz
+>mode iambic
+Mode set to: IAMBIC
+>band 60m
+>wpm 15
+>iambic B
+>save
+>exit
+>
+```
+
+![rp2350_cw](images/board_cw.jpg "rp2350_cw")
+
 
 ## Usefull links for wspr reports
 
