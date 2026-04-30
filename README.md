@@ -4,7 +4,6 @@
 
 The Raspberry Pi Pico can generate an HF (high-frequency) signal on its GPIO pins thanks to its dedicated GPIO assembly language, known as PIO (Programmable I/O).
 
-[GOTO SDR-PICO V2 DIRECTLY](#-sdr-pico-V2)
 
 ## SDR-PICO V1
 ![rpi](images/rpiV1.jpg "rpi")
